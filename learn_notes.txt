@@ -1,3 +1,6 @@
 - ẩn hiện dùng toán tử 3 ngôi hoặc function
 - function return hoặc biến có thể có giá trị là 1 đoạn code bable (html)
 - lặp đối tượng thì dùng array.map(value, index)
+- this.props.key
+- this.props.children
+- có 2 cách gọi hàm là sử dụng khai báo arrow function hai là khai báo định nghĩa function sau đó bind this cho function đó
