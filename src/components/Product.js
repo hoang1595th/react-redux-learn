@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 class Product extends Component {  
     addToCard = () => {
-        alert(this.props.price);
+        console.log(this.props.price);
     }
 
     render() {
@@ -17,7 +17,7 @@ class Product extends Component {
                                 { this.props.price }
                             </p>
                         </div>
-                        <button type="button" className="btn btn-success" onClick={ this.addToCard }>Mua hang</button>
+                        <button type="button" className="btn btn-success" onClick={this.addToCard}>Mua hang</button>
                     </div>
                 </div>
             </div>

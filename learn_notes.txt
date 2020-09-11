@@ -4,3 +4,6 @@
 - this.props.key
 - this.props.children
 - có 2 cách gọi hàm là sử dụng khai báo arrow function hai là khai báo định nghĩa function sau đó bind this cho function đó
+- đối với các trường input thì sử dụng props.refs.[name].value để lấy giá trị
+- props nhận giá trị từ bên ngoài, không thể thay đổi giá trị
+- state là dữ liệu nội bộ, có thể thay đổi giá trị, có phạm vi private trong component
