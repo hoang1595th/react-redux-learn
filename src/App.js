@@ -1,125 +1,101 @@
 import React, { Component } from 'react';
-import Header from './components/Header';
-import Product from './components/Product';
+import TaskForm from './components/TaskForm';
+import Control from './components/Control';
+import TaskList from './components/TaskList';
 import './App.css';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      products : [
-        {
-            id: 1,
-            name: "Apple Iphone 6 Plus 16GB",
-            price: 16000000,
-            image: "https://cdn.cellphones.com.vn/media/catalog/product/cache/7/small_image/300x/9df78eab33525d08d6e5fb8d27136e95/6/s/6s_rose_2.jpg",
-            status: true
-        },
-        {
-            id: 2,
-            name: "Apple Iphone 7 Plus 32GB",
-            price: 17000000,
-            image: "https://cdn.cellphones.com.vn/media/catalog/product/cache/7/small_image/300x/9df78eab33525d08d6e5fb8d27136e95/6/s/6s_rose_2.jpg",
-            status: true
-        },
-        {
-            id: 3,
-            name: "Apple Iphone 8 Plus 64GB",
-            price: 18000000,
-            image: "https://cdn.cellphones.com.vn/media/catalog/product/cache/7/small_image/300x/9df78eab33525d08d6e5fb8d27136e95/6/s/6s_rose_2.jpg",
-            status: false
+    constructor() {
+        super();
+        this.state = {
+            tasks: [], //id: unique, name, status
+            isDisplayForm : false
         }
-      ],
-      isActive:  true
+        this.onGenerateData = this.onGenerateData.bind(this);
+        this.toggleForm = this.toggleForm.bind(this);
+        this.closeForm = this.closeForm.bind(this);
     }
-  }
-  
-  active = (index) => {
-    let stateCopy = Object.assign(this.state, {});
-    stateCopy.products[index].status = !stateCopy.products[index].status;
-    this.setState(stateCopy);
-  }
 
-  addProduct = () =>{
-    console.log(this.refs.name.val);
-  }
-
-  render() {
-    let cardProducts = this.state.products.map((product, index) => {
-        let result = false;  
-        if(product.status){
-            result = 
-              <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6" key = { product.id }>
-                <Product
-                  price = { product.price }
-                  image = { product.image }
-                  name = { product.name }
-                />
-              </div>
+    componentWillMount(){
+        if(localStorage && localStorage.getItem('tasks')){
+            let tasks = JSON.parse(localStorage.getItem('tasks'));
+            this.setState({tasks : tasks});
         }
-        return result;
-    });
+    }
 
-    let tableRowProducts = this.state.products.map((product, index) => {      
-        let result = 
-          <tr key={ index }>
-            <td>{ product.id }</td>
-            <td>{ product.name }</td>
-            <td>{ product.price }</td>
-            <td>
-              <button type="button" className="btn btn-large btn-block btn-primary" onClick={ this.active.bind(this, index) }>{ product.status.toString() }</button>
-            </td>
-          </tr>
-        return result;
-    });
-  
-    return (
-      <div className="container">  
-        <div className="row">
-          <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">            
-            <div className="panel panel-danger">
-                <div className="panel-heading">
-                  <h3 className="panel-title">Thêm sản phẩm</h3>
+    onGenerateData() {
+        let tasks = [
+            {
+                id: this.generateID(),
+                name: "Học Lập Trình",
+                status: true
+            },
+            {
+                id: this.generateID(),
+                name: "Đi chơi",
+                status: false
+            },
+            {
+                id: this.generateID(),
+                name: "Ngủ",
+                status: true
+            }
+        ];
+        this.setState({tasks : tasks}, () => localStorage.setItem('tasks', JSON.stringify(this.state.tasks)));
+    }
+
+    s4() {
+        return Math.floor((1+Math.random())*0x10000).toString(16).substring(1);
+    }
+
+    generateID(){
+        return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + this.s4() + this.s4();
+    }
+
+    toggleForm(){
+        this.setState({
+            isDisplayForm : !this.state.isDisplayForm
+        })
+    }
+
+    closeForm(){
+        console.log("test")
+        this.setState({
+            isDisplayForm : false
+        })
+    }
+
+    render() { 
+        let {tasks, isDisplayForm} = this.state;
+        let formElement = isDisplayForm ? <TaskForm closeForm={this.closeForm}/> : '';
+        return (            
+            <div className="container">
+                <div className="text-center">
+                    <h1>Quản Lý Công Việc</h1>
+                    <hr/>
                 </div>
-                <div className="panel-body">   
-                  <div className="form-group">
-                    <label>Tên sản phẩm</label>
-                    <input type="text" className="form-control" id="name" ref="name" placeholder="Input field"/>
-                  </div>
-                  <button type="submit" className="btn btn-primary" onClick={ this.addProduct }>Lưu</button>
+                <div className="row">
+                    <div className={isDisplayForm ? 'col-xs-4 col-sm-4 col-md-4 col-lg-4' : ''}>
+                        {formElement}
+                    </div>
+                    <div className={isDisplayForm ? 'col-xs-8 col-sm-8 col-md-8 col-lg-8' : 'col-xs-12 col-sm-12 col-md-12 col-lg-12'}>
+                        <button type="button" className="btn btn-primary" onClick={this.toggleForm}>
+                            <span className="fa fa-plus mr-5"></span>Thêm Công Việc
+                        </button>
+                        <button type="button" className="btn btn-danger" onClick={this.onGenerateData}>
+                            Generate Data
+                        </button>
+                        <Control></Control>
+                        <div className="row mt-15">
+                            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <TaskList tasks={tasks}></TaskList>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-          </div>
-        </div>        
-        <hr></hr>
-        <div className="row">
-          <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">            
-            <table className="table table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tên sản phẩm</th>
-                  <th>Giá</th>
-                  <th>Kích hoạt</th>
-                </tr>
-              </thead>
-              <tbody>
-                { 
-                  tableRowProducts 
-                }
-              </tbody>
-            </table>            
-          </div>      
-        </div>        
-        <hr></hr>
-        <div className="row">
-          {
-            cardProducts
-          }
-        </div>      
-    </div>
-    );
-  }
+            </div>         
+        );
+    }
 }
 
 export default App;
