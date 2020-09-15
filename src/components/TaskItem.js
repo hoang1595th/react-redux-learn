@@ -8,16 +8,16 @@ class TaskItem extends Component {
                 <td>{index}</td>
                 <td>{task.name}</td>
                 <td className="text-center">
-                    <span className={task.status ? 'label label-success' : 'label label-danger'}>
-                    {task.status ? 'Ẩn' : 'Kích Hoạt'}
-                    </span>
+                    <button className={task.status ? 'btn btn-success' : 'btn btn-danger'} onClick={() => this.props.onUpdateStatus(task.id)}>
+                    <span className="label">{task.status ? 'Kích Hoạt' :  'Ẩn'}</span>
+                    </button>
                 </td>
                 <td className="text-center">
-                    <button type="button" className="btn btn-warning">
+                    <button type="button" className="btn btn-warning" onClick={() => this.props.onUpdate(task.id)}>
                         <span className="fa fa-pencil mr-5"></span>Sửa
                     </button>
                     &nbsp;
-                    <button type="button" className="btn btn-danger">
+                    <button type="button" className="btn btn-danger" onClick={() => this.props.onDelete(task.id)}>
                         <span className="fa fa-trash mr-5"></span>Xóa
                     </button>
                 </td>

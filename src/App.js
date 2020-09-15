@@ -9,11 +9,30 @@ class App extends Component {
         super();
         this.state = {
             tasks: [], //id: unique, name, status
-            isDisplayForm : false
+            isDisplayForm : false,
+            taskEditing: null,
+            filter: {
+                name: '',
+                status: -1
+            },
+            keyWord: '',
+            sort: {
+                by: 'name',
+                value: 1
+            }
         }
         this.onGenerateData = this.onGenerateData.bind(this);
         this.toggleForm = this.toggleForm.bind(this);
         this.closeForm = this.closeForm.bind(this);
+        this.showForm = this.showForm.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
+        this.onUpdateStatus = this.onUpdateStatus.bind(this);
+        this.findIndex = this.findIndex.bind(this);
+        this.onDelete = this.onDelete.bind(this);
+        this.onUpdate = this.onUpdate.bind(this);
+        this.onFilter = this.onFilter.bind(this);
+        this.onSearch = this.onSearch.bind(this);
+        this.onSort = this.onSort.bind(this);
     }
 
     componentWillMount(){
@@ -53,21 +72,148 @@ class App extends Component {
     }
 
     toggleForm(){
-        this.setState({
-            isDisplayForm : !this.state.isDisplayForm
-        })
+        if(this.state.isDisplayForm && this.state.taskEditing !== null){
+            this.setState({
+                isDisplayForm : true,
+                taskEditing: null
+            })
+        }else{
+            this.setState({
+                isDisplayForm : !this.state.isDisplayForm,
+                taskEditing: null
+            })
+        }        
     }
 
     closeForm(){
-        console.log("test")
         this.setState({
-            isDisplayForm : false
+            isDisplayForm : false,
+            taskEditing: null
+        })
+    }
+
+    showForm(){
+        this.setState({
+            isDisplayForm : true
+        })
+    }
+
+    onSubmit(task){
+        let {tasks} = this.state;
+        if(task.id === ''){
+            task.id = this.generateID();
+            tasks.push(task);
+        }else{
+            let index = this.findIndex(task.id);
+            if(index > -1){
+                tasks[index].id = task.id;
+                tasks[index].name = task.name;
+                tasks[index].status = task.status;
+            }
+        }
+        //localStorage.removeItem('tasks');
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        this.setState({
+            tasks: tasks,
+            taskEditing: null
+        });
+    }
+
+    onUpdateStatus(id){
+        let index = this.findIndex(id);
+        if(index > -1){
+            let {tasks} = this.state;
+            tasks[index].status = !tasks[index].status;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            this.setState({tasks: tasks});
+        }
+    }
+
+    findIndex(id){
+        let result = -1;
+        let {tasks} = this.state;
+        tasks.forEach((task, index) => { 
+            if(task.id == id){
+                result = index;
+            }
+        });
+        return result;
+    }
+
+    onDelete(id){
+        let index = this.findIndex(id);
+        if(index > -1){
+            let {tasks} = this.state;
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            this.setState({tasks: tasks});
+        }
+    }
+
+    onUpdate(id){
+        if(!this.state.isDisplayForm){
+            this.showForm();
+        }
+        let index = this.findIndex(id);
+        if(index > -1){
+            let {tasks} = this.state;
+            this.setState({taskEditing: tasks[index]})
+        }
+    }
+
+    onFilter(filterName, filterStatus){
+        console.log(filterName, filterStatus);
+        this.setState({
+            filter: {
+                name: filterName,
+                status: filterStatus
+            }
+        });
+    }
+
+    onSearch(key){
+        this.setState({
+            keyWord: key
+        });
+    }
+
+    onSort(sortBy, sortValue){
+        this.setState({
+            sort: {
+                by: sortBy,
+                value: sortValue
+            }
         })
     }
 
     render() { 
-        let {tasks, isDisplayForm} = this.state;
-        let formElement = isDisplayForm ? <TaskForm closeForm={this.closeForm}/> : '';
+        let {tasks, isDisplayForm, taskEditing, filter, keyWord, sort} = this.state;
+        let formElement = isDisplayForm ? <TaskForm onSubmit={this.onSubmit} closeForm={this.closeForm} task={taskEditing}/> : '';
+        if(filter.name !== ''){
+            tasks = tasks.filter((task) => {
+                return (task.name.toLocaleLowerCase().indexOf(filter.name.toLocaleLowerCase()) !== -1);
+            });
+        }
+        if(filter.status !== -1){
+            tasks = tasks.filter((task) => {
+                return task.status == filter.status;
+            });
+        }
+        if(keyWord !== ''){
+            tasks = tasks.filter((task) => {
+                return (task.name.toLocaleLowerCase().indexOf(keyWord) !== -1);
+            });
+        }
+        
+        if(sort.by === 'name'){
+            if(sort.value === 1){
+                tasks = tasks.sort();
+            }else{
+                tasks = tasks.sort().reverse();
+            }  
+        }
+        
+        
         return (            
             <div className="container">
                 <div className="text-center">
@@ -85,10 +231,15 @@ class App extends Component {
                         <button type="button" className="btn btn-danger" onClick={this.onGenerateData}>
                             Generate Data
                         </button>
-                        <Control></Control>
+                        <Control onSearch={this.onSearch} keyWord={this.state.keyWord} onSort={this.onSort}></Control>
                         <div className="row mt-15">
                             <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                <TaskList tasks={tasks}></TaskList>
+                                <TaskList tasks={tasks} 
+                                    onUpdateStatus={this.onUpdateStatus} 
+                                    onDelete={this.onDelete}
+                                    onUpdate={this.onUpdate}
+                                    onFilter={this.onFilter}
+                                ></TaskList>
                             </div>
                         </div>
                     </div>

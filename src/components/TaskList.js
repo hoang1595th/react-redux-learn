@@ -2,10 +2,35 @@ import React, { Component } from 'react';
 import TaskItem from './TaskItem';
 
 class TaskList extends Component {
+    constructor(props) {
+        super();
+        this.state = {
+            filterName: '',
+            filterStatus: -1// -1 all, 1 active, 0 inactive
+        }
+        this.onChange = this.onChange.bind(this);
+    }
+    
+
+    onChange(event){
+        let name = event.target.name;
+        let value = event.target.value;
+
+        this.setState({
+            [name]: value
+        }, () => this.props.onFilter(this.state.filterName, parseInt(this.state.filterStatus)));
+    }
+
     render() {
+        let {filterName, filterStatus} = this.state;
         let {tasks} = this.props;
         let listItemElements = tasks.map((task, index) => {
-            return <TaskItem task={task} key={index} index={index}></TaskItem>
+            return <TaskItem 
+                        task={task} key={index} index={index} 
+                        onUpdateStatus={this.props.onUpdateStatus}
+                        onDelete={this.props.onDelete}
+                        onUpdate={this.props.onUpdate}
+                    ></TaskItem>
         });
         
         return (
@@ -22,10 +47,10 @@ class TaskList extends Component {
                     <tr>
                         <td></td>
                         <td>
-                            <input type="text" className="form-control" />
+                            <input type="text" className="form-control" name="filterName" value={filterName} onChange={this.onChange}/>
                         </td>
                         <td>
-                            <select className="form-control">
+                            <select className="form-control" name="filterStatus" value={filterStatus} onChange={this.onChange}>
                                 <option value="-1">Tất Cả</option>
                                 <option value="0">Ẩn</option>
                                 <option value="1">Kích Hoạt</option>
