@@ -7,3 +7,15 @@
 - đối với các trường input thì sử dụng props.refs.[name].value để lấy giá trị
 - props nhận giá trị từ bên ngoài, không thể thay đổi giá trị
 - state là dữ liệu nội bộ, có thể thay đổi giá trị, có phạm vi private trong component
+
+
+PHẦN 2: REDUX
+- STORE được tạo ra bằng createStore() trong REDUX
+- STORE nhận vào đối số là một REDUCER
+- REDUCER là một function nhận vào 2 đối số là STATE(state của toàn bộ ứng dụng) và ACTION
+- ACTION là 1 object trong đó có thuộc tính type để phân biệt và các thuộc tính giá trị thay đổi của STATE cần truyền vào
+- để gửi 1 ACTION đến REDUCER thì sử dụng STORE.dispatch(ACTION)
+- trong REDUCER sẽ sử dụng thuộc tính type để phân biệt các ACTION (để có cách ứng xử tương ứng với từng ACTION, hay nói cách khác là cập nhật giá trị đúng ACTION đó)
+    ngoài ra sẽ sử dụng các thuộc tính khác (thuộc tính giá trị thay đổi của ACTION) để cập nhật và return về STATE mới
+- hàm combineReducers để gộp các REDUCER lại làm 1
+- PROVIDER dùng để kết nối STORE với APP

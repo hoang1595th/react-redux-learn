@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import TaskForm from './components/TaskForm';
 import Control from './components/Control';
 import TaskList from './components/TaskList';
+
+import _ from 'lodash';
 import './App.css';
 
 class App extends Component {
@@ -120,9 +122,12 @@ class App extends Component {
     }
 
     onUpdateStatus(id){
-        let index = this.findIndex(id);
+        //let index = this.findIndex(id);
+        let {tasks} = this.state;
+        let index = _.findIndex(tasks, (task) => {
+            return task.id === id;
+        })
         if(index > -1){
-            let {tasks} = this.state;
             tasks[index].status = !tasks[index].status;
             localStorage.setItem('tasks', JSON.stringify(tasks));
             this.setState({tasks: tasks});
