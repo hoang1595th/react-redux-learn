@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import * as actions from '../actions/index';
 
 class TaskItem extends Component {
     render() {
@@ -13,7 +15,7 @@ class TaskItem extends Component {
                     </button>
                 </td>
                 <td className="text-center">
-                    <button type="button" className="btn btn-warning" onClick={() => this.props.onUpdate(task.id)}>
+                    <button type="button" className="btn btn-warning" onClick={() => this.props.onOpenTaskToUpdate(task)}>
                         <span className="fa fa-pencil mr-5"></span>Sửa
                     </button>
                     &nbsp;
@@ -26,4 +28,19 @@ class TaskItem extends Component {
     }
 }
 
-export default TaskItem;
+const mapStateToProps = (state) => {
+    return {
+        
+    }
+}
+
+const mapDispatchToProps = (dispatch, props) => {
+    return {
+        onOpenTaskToUpdate: (task) => {       
+            dispatch(actions.openForm());
+            dispatch(actions.onOpenTaskToUpdate(task));
+        }
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskItem);

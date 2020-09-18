@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import * as actions from '../actions/index';
 
 class TaskForm extends Component {
     constructor(props) {
+        console.log(props)
         super();
         this.state = {
             id: '',
@@ -10,35 +13,15 @@ class TaskForm extends Component {
         }
         this.handleChange = this.handleChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.onClear = this.onClear.bind(this);
     }
 
     componentWillMount(){
-        if(this.props.task){
-            console.log(this.props.task);
-            this.setState({
-                id: this.props.task.id,
-                name: this.props.task.name,
-                status: this.props.task.status
-            })
-        }
+
     }
 
     componentWillReceiveProps(nextProps){
-        console.log(nextProps)
-        if(nextProps && nextProps.task){
-            this.setState({
-                id: nextProps.task.id,
-                name: nextProps.task.name,
-                status: nextProps.task.status
-            })
-        }else{
-            this.setState({
-                id: '',
-                name: '',
-                status: true
-            })
-        }
+        //console.log(this.props.taskEditing)
+        this.setState(nextProps.taskEditing);
     }
     
     handleChange(event){
@@ -55,54 +38,78 @@ class TaskForm extends Component {
 
     onSubmit(event){
         event.preventDefault();
-        this.props.onSubmit(this.state);
-        this.setState({
-            id: '',
-            name: '',
-            status: true
-        });
-    }
-    
-    onClear(){
-        this.setState({
-            name: '',
-            status: true
-        });
-    }
-    
+        if(this.props.taskEditing.id !== ''){
+            this.props.onUpdateTask(this.state);
+        }else{
+            this.props.onAddTask(this.state);
+        }
+        this.props.onOpenTaskToCreate();
+    }    
+      
     render() {
-        let {id} = this.state;
-        return (
-            <div className="panel panel-warning">
-                <div className="panel-heading">
-                    <h3 className="panel-title">
-                        {id !== '' ? 'Cập nhật công việc' : 'Thêm Công Việc'}
-                        <button className="btn btn-primary" type="button" onClick={() => this.props.closeForm()}>
-                            <span className="fa fa-times-circle text-right"></span>
-                        </button>
-                    </h3>
-                </div>
-                <div className="panel-body">
-                    <form onSubmit={this.onSubmit}>
-                        <div className="form-group">
-                            <label>Tên :</label>
-                            <input type="text" required="required" className="form-control" value={this.state.name} name="name" onChange={this.handleChange}/>
+        let task = this.state;
+        if(this.props.isDisplayForm){
+            return (
+                <div className="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div className="panel panel-warning">
+                        <div className="panel-heading">
+                            <h3 className="panel-title">
+                                {task.id !== '' ? 'Cập nhật công việc' : 'Thêm Công Việc'}
+                                <button className="btn btn-primary" type="button" onClick={() => this.props.closeForm()}>
+                                    <span className="fa fa-times-circle text-right"></span>
+                                </button>
+                            </h3>
                         </div>
-                        <label>Trạng Thái :</label>
-                        <select className="form-control" required="required" value={this.state.status} name="status" onChange={this.handleChange}>
-                            <option value={true} >Kích Hoạt</option>
-                            <option value={false} >Ẩn</option>
-                        </select>
-                        <br/>
-                        <div className="text-center">
-                            <button type="submit" className="btn btn-warning">{id !== '' ? 'Cập nhật' : 'Thêm'}</button>&nbsp;
-                            <button type="button" className="btn btn-danger" onClick={this.onClear}>Hủy Bỏ</button>
+                        <div className="panel-body">
+                            <form onSubmit={this.onSubmit}>
+                                <div className="form-group">
+                                    <label>Tên :</label>
+                                    <input type="text" required="required" className="form-control" value={this.state.name} name="name" onChange={this.handleChange}/>
+                                </div>
+                                <label>Trạng Thái :</label>
+                                <select className="form-control" required="required" value={this.state.status} name="status" onChange={this.handleChange}>
+                                    <option value={true} >Kích Hoạt</option>
+                                    <option value={false} >Ẩn</option>
+                                </select>
+                                <br/>
+                                <div className="text-center">
+                                    <button type="submit" className="btn btn-warning">{task.id !== '' ? 'Cập nhật' : 'Thêm'}</button>&nbsp;
+                                    <button type="button" className="btn btn-danger" onClick={this.props.onOpenTaskToCreate}>Hủy Bỏ</button>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        }else{
+            return '';
+        }
     }
 }
 
-export default TaskForm;
+const mapStateToProps = (state) => {
+    console.log(state.taskEditing)
+    return {
+        isDisplayForm: state.isDisplayForm,
+        taskEditing: state.taskEditing
+    }
+}
+
+const mapDispatchToProps = (dispatch, props) => {
+    return {
+        onAddTask: (task) => {
+            dispatch(actions.addTask(task));
+        },
+        closeForm: () => {
+            dispatch(actions.closeForm());
+        },
+        onOpenTaskToCreate: () => {
+            dispatch(actions.onOpenTaskToCreate());
+        },
+        onUpdateTask: (task) => {
+            dispatch(actions.onUpdateTask(task));
+        },
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskForm);
