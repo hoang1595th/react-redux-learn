@@ -14,7 +14,7 @@ let myReducer = (state = initialState, action) => {
             //console.log(action.task)
             break;
         case ActionType.OPEN_TASK_TO_CREATE:
-            state = initialState; 
+            state = {...initialState}; 
         default:
             break;
     }
